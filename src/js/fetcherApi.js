@@ -23,19 +23,22 @@ export default class Fetcher {
       orientation: 'horizontal',
       safesearch: true,
     };
-    const response = await axios.get(this.#BASE_URL, { params: parametrs });
+    try {
+      const response = await axios.get(this.#BASE_URL, { params: parametrs });
+      if (response.data.total === 0) {
+        Notify.failure(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
+        loadBtn.classList.add('is-hidden');
+      } else {
+        Notify.info(`"Hooray! We found ${response.data.total} images."`);
+      }
 
-    if (response.data.total === 0) {
-      Notify.failure(
-        'Sorry, there are no images matching your search query. Please try again.'
-      );
-      loadBtn.classList.add('is-hidden');
-    } else {
-      Notify.info(`"Hooray! We found ${response.data.total} images."`);
+      this.totalPage = Math.ceil(response.data.total / this.per_page);
+
+      return response.data.hits;
+    } catch (error) {
+      console.error('An error occurred during the API request:', error);
     }
-
-    this.totalPage = Math.ceil(response.data.total / this.per_page);
-
-    return response.data.hits;
   }
 }

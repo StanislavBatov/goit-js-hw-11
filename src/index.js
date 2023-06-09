@@ -17,37 +17,47 @@ async function onFormSubmit(event) {
   event.preventDefault();
   clearMarkup();
   pixaBayFetcher.query = event.target.elements.searchQuery.value;
-  const data = await pixaBayFetcher.getRequest();
-  const fullString = makeMarkup(data);
-  insertMarkup(fullString);
-  if (pixaBayFetcher.page < pixaBayFetcher.totalPage) {
-    pixaBayFetcher.page += 1;
-    showBtnLoad();
-    backdropGallery.refresh();
+  try {
+    const data = await pixaBayFetcher.getRequest();
+    const fullString = makeMarkup(data);
+    insertMarkup(fullString);
+    if (pixaBayFetcher.page < pixaBayFetcher.totalPage) {
+      pixaBayFetcher.page += 1;
+      showBtnLoad();
+      backdropGallery.refresh();
+    } else if (data.length < 40) {
+      backdropGallery.refresh();
+    }
+  } catch (error) {
+    console.log(error);
   }
 }
 
 async function onBtnLoadClick() {
   hideBtnLoad();
-  const data = await pixaBayFetcher.getRequest();
-  const fullString = makeMarkup(data);
-  insertMarkup(fullString);
-  if (pixaBayFetcher.page === pixaBayFetcher.totalPage) {
-    Notify.info("We're sorry, but you've reached the end of search results.");
-  }
-  if (pixaBayFetcher.page < pixaBayFetcher.totalPage) {
-    pixaBayFetcher.page += 1;
-    showBtnLoad();
-    backdropGallery.refresh();
-  }
-  const { height: cardHeight } = document
-    .querySelector('.gallery')
-    .firstElementChild.getBoundingClientRect();
+  try {
+    const data = await pixaBayFetcher.getRequest();
+    const fullString = makeMarkup(data);
+    insertMarkup(fullString);
+    if (pixaBayFetcher.page === pixaBayFetcher.totalPage) {
+      Notify.info("We're sorry, but you've reached the end of search results.");
+    }
+    if (pixaBayFetcher.page < pixaBayFetcher.totalPage) {
+      pixaBayFetcher.page += 1;
+      showBtnLoad();
+      backdropGallery.refresh();
+    }
+    const { height: cardHeight } = document
+      .querySelector('.gallery')
+      .firstElementChild.getBoundingClientRect();
 
-  window.scrollBy({
-    top: cardHeight * 2,
-    behavior: 'smooth',
-  });
+    window.scrollBy({
+      top: cardHeight * 2,
+      behavior: 'smooth',
+    });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 function insertMarkup(fullMarkup) {
